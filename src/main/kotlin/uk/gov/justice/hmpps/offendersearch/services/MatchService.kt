@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.offendersearch.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.lucene.search.join.ScoreMode
 import org.elasticsearch.action.search.SearchRequest
 import org.elasticsearch.action.search.SearchResponse
 import org.elasticsearch.index.query.BoolQueryBuilder
@@ -97,11 +98,13 @@ class MatchService(
                   .mustWhenPresent("firstName", firstName)
                   .mustWhenPresent("dateOfBirth", dateOfBirth)
               )
-              .should(QueryBuilders.boolQuery()
-                  .mustWhenPresent("offenderAliases.surname", surname)
-                  .mustWhenPresent("offenderAliases.firstName", firstName)
-                  .mustWhenPresent("offenderAliases.dateOfBirth", dateOfBirth)
-              )
+              .should(QueryBuilders.nestedQuery("offenderAliases",
+                  QueryBuilders.boolQuery()
+                      .mustWhenPresent("offenderAliases.surname", surname)
+                      .mustWhenPresent("offenderAliases.firstName", firstName)
+                      .mustWhenPresent("offenderAliases.dateOfBirth", dateOfBirth),
+                  ScoreMode.Max
+              ))
           )
     }
   }
@@ -128,7 +131,7 @@ class MatchService(
     }
   }
 
-  private fun allLenientDateVariations(date:  LocalDate) : List<LocalDate> {
+  private fun allLenientDateVariations(date: LocalDate): List<LocalDate> {
     return swapMonthDay(date) + everyOtherValidMonth(date) + aroundDateInSameMonth(date)
   }
 

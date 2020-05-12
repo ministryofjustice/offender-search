@@ -584,7 +584,7 @@ internal class OffenderMatchControllerAPIIntegrationTest : AbstractTestExecution
           .body(MatchRequest(
               surname = "Abbagnano",
               firstName = "Bhimrao",
-              dateOfBirth = LocalDate.of(1903, 11, 11),
+              dateOfBirth = LocalDate.of(1891, 4, 14),
               croNumber = "SF80/655108T"
           ))
           .post("/match")
